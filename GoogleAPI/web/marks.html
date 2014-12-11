@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style type="text/css">
+            html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
+        </style>
+        <script type="text/javascript"
+                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCb1WqDihpcYoiL6xjV0hm5JAOywQdKhrY">
+        </script>
+        <script type="text/javascript">
+
+            function initialize() {
+                alexandria = new google.maps.LatLng(31.21354, 29.94435999999996);
+                defaultLocation = new google.maps.LatLng(25.233555, 55.356191);
+                defaultZoom = 10;
+                //var map;
+                var myLocation = '';
+                var mapOptions = {
+                    center: defaultLocation,
+                    zoom: defaultZoom
+                };
+
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    // initialize Pins on the Map
+                    myLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    map.setCenter(myLocation);
+                    map.setZoom(8);
+
+                    var marker = new google.maps.Marker({
+                        position: myLocation,
+                        title: "Hello World!"
+                    });
+                    marker.setMap(map);
+                }, function(err) {
+                    console.log('ERROR(' + err.code + '): ' + err.message);
+                });
+
+                var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+
+                var marker = new google.maps.Marker({
+                    position: alexandria,
+                    map: map,
+                    title: 'Hello World!'
+                });
+                
+                marker.setMap(map);
+            }
+            google.maps.event.addDomListener(window, 'load', initialize);
+        </script>
+    </head>
+    <body>
+        <div id="map-canvas"></div>
+    </body>
+</html>

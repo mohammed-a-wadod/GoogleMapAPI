@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style type="text/css">
+            html, body, #map-canvas { height: 100%; margin: 0; padding: 0;}
+        </style>
+        <script type="text/javascript"
+                src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCb1WqDihpcYoiL6xjV0hm5JAOywQdKhrY">
+        </script>
+        <script type="text/javascript">
+
+            var myLocation = '';
+            var alexandria = new google.maps.LatLng(31.21354, 29.94435999999996);
+            var request = '';
+            
+            //defind direction API
+            var rendererOptions = {
+                draggable: false //to make the drag inactive 
+            }; 
+            var directionsDisplay = new google.maps.DirectionsRenderer(rendererOptions);
+            var directionsService = new google.maps.DirectionsService();
+            
+            var map;//var to hold map
+            
+            function initialize() {
+                //set the defualt location and zoom
+                defaultLocation = new google.maps.LatLng(31.21354, 29.94435999999996);
+                defaultZoom = 10;
+                
+                //define options and properties for map
+                var mapOptions = {
+                    center: defaultLocation,
+                    zoom: defaultZoom
+                };
+                
+                //detect my current location and add marker on it
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    // initialize Pins on the Map
+                    myLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    map.setCenter(myLocation);
+                    map.setZoom(8);
+
+                    var marker = new google.maps.Marker({
+                        position: myLocation,
+                        title: "Hello World!"
+                    });
+                    marker.setMap(map);
+                    
+                    //set the request properties which will be origin and destination
+                    request = {
+                        origin: myLocation,
+                        destination: alexandria,
+                        //waypoints: [{location: 'Alexandria, EG'},{location: 'Tanta, EG'}],
+                        travelMode: google.maps.TravelMode.DRIVING
+                    };
+
+                }, function(err) {
+                    console.log('ERROR(' + err.code + '): ' + err.message);
+                });
+                
+                //creat object "map" ,passing to it the div element and the map properties
+                var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+                
+                //set directionDisplay to map
+                directionsDisplay.setMap(map);
+                google.maps.event.addListener(directionsDisplay, 'directions_changed', function() {
+                    //computeTotalDistance(directionsDisplay.getDirections());
+                });
+                
+                //add the second marker
+                var marker2 = new google.maps.Marker({
+                    position: alexandria,
+                    map: map,
+                    title: 'Hello World!'
+                });
+                marker2.setMap(map);
+            }
+            
+            //draw direction
+            function calcRoute(request) {
+                directionsService.route(request, function(response, status) {
+                    if (status == google.maps.DirectionsStatus.OK) {
+                        directionsDisplay.setDirections(response);
+                    }
+                });
+            }
+            
+            //compute Distance
+            function computeTotalDistance(result) {
+                var total = 0;
+                var myroute = result.routes[0];
+                for (var i = 0; i < myroute.legs.length; i++) {
+                    total += myroute.legs[i].distance.value;
+                }
+                total = total / 1000.0;
+                document.getElementById('total').innerHTML = total + ' km';
+            }
+            
+            //draw map when the page is loaded
+            google.maps.event.addDomListener(window, 'load', initialize);
+
+            function toggleClicked() {
+                calcRoute(request);
+            }
+        </script>
+    </head>
+    <body>
+        <div style = "width: 100%; min-height: 40px;">
+            <input type="submit" onclick="toggleClicked()">
+            <div id="total"></div>
+        </div>
+        <div id="map-canvas"></div>
+    </body>
+</html>
